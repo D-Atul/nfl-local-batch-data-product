@@ -1,0 +1,18 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Generated outputs
+outputs/
+.tmp_run_*
+
+# Virtual environments
+.venv/
+env/
