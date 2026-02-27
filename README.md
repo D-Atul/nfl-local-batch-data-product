@@ -1,126 +1,179 @@
 # NFL Local Batch Data Product
 
-This repository contains a local, deterministic batch data product built over historical NFL game events.
-
-The purpose of this project is to demonstrate how a data engineer designs, validates, executes, and proves a batch system under explicit constraints — without overengineering or analytical cosplay.
-
-The system is contract-first, fail-fast, and evidence-driven.
+Version: v1.1 (Hardening In Progress)
 
 ---
 
-## What this project is
+## Overview
 
-- A local batch pipeline over historical NFL game events
-- Events-only metric computation (no enrichment joins)
-- Deterministic reruns with explicit guarantees
-- Evidence-driven execution using a single source of truth
+This project implements a deterministic local batch data product over historical NFL game data.
 
-This is a **data engineering portfolio project**, not an exploratory analysis notebook.
+The pipeline validates raw inputs against an explicit contract, applies controlled transformations, computes season-level metrics, and publishes curated outputs along with an auditable run log.
 
----
-
-## What this project is not
-
-- No prediction, forecasting, or optimisation
-- No betting, strategy, or ranking recommendations
-- No deduplication or silent data fixing
-- No incremental processing or backfills
-- No cloud, orchestration, or distributed claims
+The goal is reliability and reproducibility — not analytics exploration.
 
 ---
 
-## Data scope
+## Product Guarantees
 
-- Primary entity: NFL game events (one row per match)
-- Reference entity: Teams (present but unused in computation)
-- Source: Static historical dataset
+The system guarantees:
 
-Metric computation operates exclusively on the Events entity.
-Reference datasets are not joined and are not enforced via contracts.
+- **Contract-first validation** of raw inputs using explicit schema rules
+- **Fail-fast behaviour** on validation or transformation violations
+- **Row-count preservation** during transformation
+- **Deterministic metric computation**
+- **Atomic publish of outputs**
+- **Structured run logging for auditability**
+- **Overwrite-based rerun behaviour (idempotent at run level)**
 
----
-
-## Guarantees
-
-- Contract-first execution  
-  Raw inputs and all published outputs are validated via explicit contracts.
-  Contract violations fail execution immediately.
-
-- Deterministic reruns  
-  Identical inputs produce identical outputs.
-  No time-dependent logic or hidden state.
-
-- Reconciliation invariant  
-  Transformations preserve event cardinality (one row per match).
-
-- No partial publish  
-  Outputs are written via a staged publish (temporary write followed by rename).
-  Either the previous outputs remain, or the new outputs fully replace them.
-
-- Single source of truth for evidence  
-  One run log (`logs/run_<id>.json`) captures inputs, row counts, validations,
-  outputs, execution status, and errors.
+If validation fails, no partial outputs are considered valid.
 
 ---
 
-## Repository structure
+## Non-Goals
 
-framework/
-  NFL_Local_Batch_Framework_v1.ipynb
+This project does not:
 
-src/
-  contracts/
-  pipelines/
-  runner/
-    run_local_batch.py
+- Perform forecasting or prediction
+- Generate rankings or recommendations
+- Provide betting logic
+- Modify or silently repair corrupted data
+- Perform cross-era franchise normalization
 
-raw_data/
-  spreadspoke_scores.csv
-  nfl_teams.csv
-
-outputs/
-  metrics/
-
-logs/
-  run_c547f0fcc34940d7b64c71c01c0ff19c.json
-
-evidence_notebook.ipynb
+It is a data product, not an analytics notebook.
 
 ---
 
-## How to run
+## Architecture
 
-From the project root:
+Pipeline stages:
 
+1. Raw CSV ingestion
+2. Raw contract validation
+3. Controlled transformation
+4. Reconciliation check (row preservation)
+5. Metric computation
+6. Metric contract validation
+7. Atomic publish to output directory
+8. Structured JSON run log emission
+
+Data flow:
+
+```
+Raw → Validate → Transform → Reconcile → Metrics → Validate → Publish → Log
+```
+
+---
+
+## How to Run
+
+From project root:
+
+```bash
 python -m src.runner.run_local_batch
+```
+
+> Next version will introduce CLI argument support.
 
 ---
 
 ## Outputs
 
-Published to outputs/metrics:
+Outputs are written to the `outputs/` directory:
 
-- team_outcomes.parquet
-- season_summaries.parquet
-- venue_neutral_counts.parquet
+### 1. `team_outcomes.parquet`
 
-Each execution also produces a run log in logs/ as the authoritative evidence artifact.
+Grain: `(team, season)`
+
+Includes:
+- `games_played`
+- `wins`
+- `losses`
+- `ties`
+- `points_for`
+- `points_against`
+
+### 2. `season_summaries.parquet`
+
+Grain: `(season)`
+
+Includes:
+- `total_games`
+- `playoff_games`
+- `regular_games`
+
+### 3. `venue_neutral_counts.parquet`
+
+Grain: `(season)`
+
+Includes:
+- `neutral_site_games`
+
+### 4. Run Log
+
+Each run produces a structured JSON log containing:
+
+- `run_id`
+- `input row count`
+- `output row counts`
+- `status` (`SUCCESS` / `FAILED`)
+- `error message` (if applicable)
+
+This provides minimal but sufficient audit traceability.
 
 ---
 
-## Evidence notebook
+## Determinism & Rerun Behaviour
 
-notebook.ipynb is a read-only evidence notebook.
+- Outputs are recomputed from raw input each run
+- Previous outputs are overwritten
+- No hidden state is maintained
+- Identical input produces identical output
 
-It loads the latest run log, summarises execution and validation outcomes,
-and reads published outputs using paths recorded in the run log.
-It performs no mutation or recomputation.
+The system is deterministic by logic, not infrastructure tricks.
 
 ---
 
-## Design philosophy
+## Failure Modes
 
-This project intentionally avoids premature abstraction and overengineering.
+The pipeline fails when:
 
-The focus is first-job readiness with a senior mindset:
-clear scope, explicit guarantees, and proof over claims.
+- Raw contract validation fails
+- Transformation drops or duplicates rows
+- Metric contract validation fails
+- Unexpected runtime exception occurs
+
+On failure:
+
+- Status is marked `FAILED` in run log
+- No partially validated dataset is considered valid
+
+---
+
+## Repository Structure
+
+```
+src/
+  contracts/
+  metrics/
+  runner/
+framework/
+raw_data/
+logs/
+outputs/
+notebook.ipynb
+requirements.txt
+```
+
+---
+
+## Version History
+
+| Version | Description |
+|---------|-------------|
+| v1.0.0 | Baseline deterministic batch pipeline |
+| v1.1.0 | Hardening phase (tests, dependency pinning, CLI, CI) |
+
+---
+
+This repository is part of a broader portfolio demonstrating contract-first, audit-aware data engineering practices suitable for production-style batch systems.
