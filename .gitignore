@@ -1,18 +1,51 @@
-# macOS
-.DS_Store
-
+# ==============================
 # Python
+# ==============================
 __pycache__/
-*.pyc
-*.pyo
-
-# Jupyter
-.ipynb_checkpoints/
-
-# Generated outputs
-outputs/
-.tmp_run_*
+*.py[cod]
+*.so
+*.pyd
+*.egg-info/
+.eggs/
 
 # Virtual environments
-.venv/
+.env
+.venv
+venv/
 env/
+
+# ==============================
+# Testing / Coverage
+# ==============================
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# ==============================
+# Jupyter
+# ==============================
+.ipynb_checkpoints/
+
+# ==============================
+# OS Files
+# ==============================
+.DS_Store
+Thumbs.db
+
+# ==============================
+# Build / Distribution
+# ==============================
+build/
+dist/
+
+# ==============================
+# IDE
+# ==============================
+.vscode/
+.idea/
+
+# ==============================
+# Local outputs (if not meant for repo)
+# ==============================
+outputs/
