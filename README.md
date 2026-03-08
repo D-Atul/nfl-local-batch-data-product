@@ -158,10 +158,10 @@ src/
   metrics/
   runner/
 framework/
-raw_data/
+data/raw/
 logs/
 outputs/
-notebook.ipynb
+evidence/EvidenceNB.ipynb
 requirements.txt
 ```
 
