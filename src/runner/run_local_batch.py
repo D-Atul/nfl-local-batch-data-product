@@ -117,8 +117,8 @@ def build_arg_parser() -> argparse.ArgumentParser:
     )
     p.add_argument(
         "--input_csv",
-        default="raw_data/spreadspoke_scores.csv",
-        help="Path to raw input CSV (default: raw_data/spreadspoke_scores.csv)",
+        default="data/raw/spreadspoke_scores.csv",
+        help="Path to raw input CSV (default: data/raw/spreadspoke_scores.csv)",
     )
     p.add_argument(
         "--outputs_dir",

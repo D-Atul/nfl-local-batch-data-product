@@ -10,7 +10,7 @@ from src.pipelines.build_metrics import (
 
 
 def _load_curated(n: int = 500) -> pd.DataFrame:
-    raw = pd.read_csv("raw_data/spreadspoke_scores.csv", nrows=n)
+    raw = pd.read_csv("data/raw/spreadspoke_scores.csv", nrows=n)
     validate_raw_guardrails(raw)
     curated = transform_events(raw)
     validate_raw_events(curated)

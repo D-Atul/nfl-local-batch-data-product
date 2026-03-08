@@ -9,7 +9,7 @@ from src.pipelines.transform_events import transform_events
 
 
 def _load_raw_sample(n: int = 200) -> pd.DataFrame:
-    return pd.read_csv("raw_data/spreadspoke_scores.csv", nrows=n)
+    return pd.read_csv("data/raw/spreadspoke_scores.csv", nrows=n)
 
 
 def test_raw_guardrails_pass():

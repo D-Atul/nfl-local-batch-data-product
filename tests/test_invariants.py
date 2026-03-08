@@ -8,7 +8,7 @@ import src.runner.run_local_batch as runner
 
 
 def _write_raw_csv(tmp_path: Path, n: int = 200) -> Path:
-    df = pd.read_csv("raw_data/spreadspoke_scores.csv", nrows=n)
+    df = pd.read_csv("data/raw/spreadspoke_scores.csv", nrows=n)
     p = tmp_path / "input.csv"
     df.to_csv(p, index=False)
     return p
