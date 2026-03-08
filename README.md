@@ -143,7 +143,8 @@ This repository demonstrates several production-oriented engineering practices:
 * structured pipeline orchestration
 * run-level logging and evidence generation
 * automated tests using `pytest`
-* continuous integration using GitHub Actions
+* Automated CI pipeline via GitHub Actions
+* All commits run the pytest suite to verify pipeline contracts
 
 ---
 
