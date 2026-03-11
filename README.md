@@ -1,5 +1,7 @@
 # NFL Local Batch Data Product
 
+![CI](https://github.com/D-Atul/local-batch-data-product/actions/workflows/ci.yml/badge.svg)
+
 A contract-first local batch pipeline that processes historical NFL game data into validated analytical datasets with deterministic execution, explicit data validation, and run-level evidence.
 
 ---
