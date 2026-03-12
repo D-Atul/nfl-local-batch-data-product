@@ -1,165 +1,232 @@
-# NFL Local Batch Data Product
+# Local Batch Data Pipeline for Historical NFL Game Analytics
 
 ![CI](https://github.com/D-Atul/local-batch-data-product/actions/workflows/ci.yml/badge.svg)
 
-A contract-first local batch pipeline that processes historical NFL game data into validated analytical datasets with deterministic execution, explicit data validation, and run-level evidence.
+A contract-first local batch data pipeline that ingests historical NFL game events, validates them with schema contracts, transforms them into curated analytics tables, and produces reproducible outputs with run logging and evidence.
 
 ---
 
-# Overview
+## Business / Engineering Problem
 
-This project demonstrates how a small batch data pipeline can be built with production-style engineering discipline while running locally.
+Historical sports datasets are often distributed as raw CSV files with inconsistent guarantees around structure, completeness, and reliability.  
+Without validation and controlled transformations, downstream analysis can easily become unreliable or irreproducible.
 
-The pipeline ingests raw NFL game data, validates the input through explicit data contracts, transforms the dataset into curated events, computes analytical metrics, and publishes reproducible outputs.
+This project demonstrates how a **data engineer converts raw historical data into trustworthy, analysis-ready datasets** using a structured batch pipeline with explicit validation, deterministic execution, and observable run artifacts.
 
-Each run produces a run log that records execution metadata and validation outcomes, providing traceability and audit-style evidence of pipeline behavior.
-
-The goal of the project is to demonstrate practical data engineering patterns such as:
-
-* contract-first data validation
-* deterministic batch processing
-* explicit transformation stages
-* reproducible analytical outputs
-* run-level execution evidence
-* automated test validation via CI
+The objective is to demonstrate **production-minded data engineering practices**, not exploratory analysis.
 
 ---
 
-# Architecture
+## Architecture Overview
 
-The pipeline architecture is shown below.
+![Architecture](docs/architecture.png)
 
-![Pipeline Architecture](docs/architecture.png)
+Pipeline flow:
 
-The system follows a contract-first batch pipeline design where data moves through clearly defined stages with validation gates between them.
+Raw CSV input  
+→ Raw schema guardrails validate required columns and structure  
+→ Transformation stage standardizes event records  
+→ Curated contract validation ensures post-transform correctness  
+→ Metric tables are generated from curated events  
+→ Output contracts validate published datasets  
+→ Outputs are written atomically  
+→ Run metadata and validation outcomes are logged  
+→ Evidence notebook inspects run artifacts and outputs
 
-Key stages include:
-
-* raw input validation
-* event transformation
-* curated dataset validation
-* metric computation
-* output validation
-* run logging and evidence generation
+This mirrors a simplified **local batch data product architecture** used in production environments.
 
 ---
 
-# Project Structure
+## Tech Stack
+
+- Python  
+- Pandas  
+- Pandera (data contracts)  
+- Parquet  
+- Pytest  
+- GitHub Actions (CI testing)
+
+Only technologies directly used in the pipeline are included.
+
+---
+
+## Project Structure
 
 ```
+local-batch-data-product/
+
+README.md
+requirements.txt
+.gitignore
+LICENSE
+
+data/
+ └── raw/
+     nfl_events.csv
+     nfl_teams.csv
+
 src/
-  contracts/        data validation rules
-  pipelines/        transformation and metric logic
-  runner/           pipeline orchestration entrypoint
+ ├── contracts/
+ │   raw_events_contract.py
+ │   metrics_contracts.py
+ │
+ ├── pipelines/
+ │   transform_events.py
+ │   build_metrics.py
+ │
+ └── runner/
+     run_local_batch.py
 
-tests/              validation and pipeline tests
-framework/          design framework and pipeline guarantees
-data/raw/           raw dataset used by the pipeline
-outputs/            generated analytical metric tables
-logs/               run logs generated during pipeline execution
-evidence/           notebook used to inspect outputs and run logs
-docs/               architecture diagram and documentation assets
+tests/
+ ├── test_contracts.py
+ ├── test_metrics.py
+ ├── test_runner.py
+ └── test_transformations.py
+
+docs/
+ ├── architecture.png
+ └── pipeline_flow.png
+
+logs/
+ └── run_<example>.json
+
+evidence/
+ └── evidence_notebook.ipynb
+
+framework/
+ └── batch_framework.md
 ```
+
+### Folder Overview
+
+- **src/contracts** — schema contracts and validation logic  
+- **src/pipelines** — transformation and metric generation logic  
+- **src/runner** — pipeline orchestration and run logging  
+- **tests** — contract validation and pipeline tests  
+- **docs** — architecture and pipeline diagrams  
+- **logs** — example run metadata from pipeline execution  
+- **evidence** — read-only notebook inspecting pipeline outputs  
+- **framework** — architectural framework defined before implementation
 
 ---
 
-# How To Run
+## Key Engineering Features
 
-Clone the repository.
+- Contract-first validation before and after transformation  
+- Deterministic batch execution  
+- Explicit run logging and validation outcomes  
+- Separation between raw ingestion and curated outputs  
+- Reproducible pipeline runs from a minimal local dataset  
+- Automated tests validating contracts and transformations  
+- CI pipeline executing tests on repository changes
+
+These features reflect **production-oriented engineering discipline** rather than exploratory analysis.
+
+---
+
+## How to Run
+
+Clone the repository:
 
 ```
-git clone <repo-url>
-cd nfl-local-batch-data-product
+git clone https://github.com/D-Atul/local-batch-data-product
+cd local-batch-data-product
 ```
 
-Create a virtual environment.
+Create a virtual environment:
 
 ```
 python -m venv .venv
 source .venv/bin/activate
 ```
 
-Install dependencies.
+Install dependencies:
 
 ```
 pip install -r requirements.txt
 ```
 
-Run the pipeline.
+Run the pipeline:
 
 ```
-python -m src.runner.run_local_batch
+python src/runner/run_local_batch.py
 ```
+
+Outputs generated:
+
+- Curated metric tables written to `outputs/`
+- Run metadata written to `logs/`
+- Validation outcomes captured in the run log
 
 ---
 
-# What This Produces
+## Sample Outputs
 
-After a successful run the pipeline generates analytical datasets:
+Example artifacts produced by the pipeline include:
 
-```
-outputs/metrics/
+- Metric summary tables (Parquet format)
+- Run metadata logs
+- Validation status reports
+- Evidence notebook inspection
 
-season_summaries.parquet
-team_outcomes.parquet
-venue_neutral_counts.parquet
-```
-
-Each run also produces execution evidence:
+Example log artifact:
 
 ```
-logs/run_<timestamp>.json
+logs/run_<run_id>.json
 ```
 
-The run log records:
+This file contains:
 
-* pipeline start and completion timestamps
-* validation results
-* row counts across stages
-* output artifacts produced
+- execution timestamp  
+- input sources  
+- row counts  
+- validation outcomes  
+- output locations  
+
+These artifacts demonstrate **observable pipeline execution**.
 
 ---
 
-# Evidence Inspection
+## Evidence Notebook
 
-The notebook below can be used to inspect pipeline results.
+The repository includes a read-only notebook:
 
 ```
 evidence/evidence_notebook.ipynb
 ```
 
-The notebook allows quick inspection of:
+The notebook inspects:
 
-* generated metric tables
-* output schema validation
-* run log metadata
+- generated output datasets  
+- run metadata logs  
+- validation outcomes  
 
----
-
-# Engineering Features
-
-This repository demonstrates several production-oriented engineering practices:
-
-* contract-first data validation
-* deterministic local batch execution
-* structured pipeline orchestration
-* run-level logging and evidence generation
-* automated tests using `pytest`
-* Automated CI pipeline via GitHub Actions
-* All commits run the pytest suite to verify pipeline contracts
+It provides **execution transparency and verification** without modifying pipeline outputs.
 
 ---
 
-# Framework
+## What This Project Demonstrates
 
-The `framework/` directory contains the design framework that defines the execution guarantees and architectural rules used to build this data product.
+This project demonstrates the ability to:
 
-The framework documents the intended behavior of the pipeline independently from the implementation code.
+- design a batch data pipeline with clear architectural boundaries  
+- implement contract-first data validation  
+- produce deterministic and reproducible outputs  
+- implement logging and observability in data pipelines  
+- structure data engineering repositories professionally  
+- create artifacts that resemble real engineering deliverables  
+
+The project is intended to show **data pipeline design, validation discipline, and production-oriented engineering thinking**.
 
 ---
 
-# Purpose of the Project
+## Portfolio Context
 
-The goal of this repository is to demonstrate how a reproducible data pipeline can be structured using clear validation boundaries, explicit transformation stages, and deterministic outputs.
+This repository represents the **Local Batch** component of a four-stage data engineering portfolio:
 
-The project focuses on engineering discipline rather than scale, showing how production-style patterns can be applied even in a small local batch system.
+1. Local Batch  
+2. Local Streaming  
+3. Azure Batch  
+4. Azure Streaming  
+
+Each project demonstrates progressively more complex pipeline architectures while maintaining consistent engineering discipline.
