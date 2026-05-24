@@ -1,0 +1,10 @@
+services:
+  local-batch-pipeline:
+    build: .
+    container_name: local-batch-data-product
+    environment:
+      - PYTHONPATH=/app
+    volumes:
+      - ./outputs:/app/outputs
+      - ./logs:/app/logs
+    command: python src/runner/run_local_batch.py
